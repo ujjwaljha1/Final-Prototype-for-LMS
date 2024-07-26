@@ -1,65 +1,114 @@
+
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { motion } from 'framer-motion';
+import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
 
-function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const navigate = useNavigate();
+import OTPVerification from '../components/OTPVerification';
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const [userId, setUserId] = useState(null);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.user.name);
-      localStorage.setItem('isAdmin', response.data.user.isAdmin);
-      navigate('/');
+      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      if (response.data.success) {
+        if (response.data.userId) {
+          setUserId(response.data.userId);
+        } else {
+          // User is exempt from OTP verification
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('isAdmin', response.data.user.isAdmin);
+          window.location.href = '/';
+        }
+      }
     } catch (error) {
-      console.error('Error logging in:', error);
+      console.error(error);
+      setError('Invalid email or password. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleVerificationSuccess = () => {
+    window.location.href = '/';
+  };
+
+  if (userId) {
+    return <OTPVerification userId={userId} onVerificationSuccess={handleVerificationSuccess} />;
+  }
   return (
-    <div className="container mx-auto mt-8">
-      <h1 className="text-4xl font-bold mb-8">Login</h1>
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-        <div className="mb-4">
-          <label htmlFor="email" className="block mb-2">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-lg"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block mb-2">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-lg"
-            required
-          />
-        </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-          Login
-        </button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-600 to-indigo-600">
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white p-8 rounded-lg shadow-2xl w-96"
+      >
+        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Login</h2>
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label className="block text-gray-700 mb-2" htmlFor="email">
+              <FaEnvelope className="inline mr-2" />
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-2" htmlFor="password">
+              <FaLock className="inline mr-2" />
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
+            />
+          </div>
+          <motion.button
+            type="submit"
+            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition duration-300 flex items-center justify-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <motion.div
+                className="w-6 h-6 border-t-2 border-white rounded-full animate-spin"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+            ) : (
+              <>
+                <FaSignInAlt className="mr-2" />
+                Login
+              </>
+            )}
+          </motion.button>
+        </form>
+      </motion.div>
     </div>
   );
-}
+};
 
-export default LoginPage;
+export default Login;

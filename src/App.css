@@ -1,0 +1,31 @@
+/* In your App.css or a separate CSS file */
+.canvas-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  canvas {
+    border: 1px solid black;
+    cursor: pointer;
+  }
+  
+  .bird {
+    width: 34px;
+    height: 24px;
+    background-color: yellow;
+    border-radius: 50%;
+    
+    position: absolute;
+  }
+  
+  .score {
+    margin-top: 16px;
+    font-size: 24px;
+  }
+  
+  .high-score {
+    margin-top: 8px;
+    font-size: 20px;
+  }
+  

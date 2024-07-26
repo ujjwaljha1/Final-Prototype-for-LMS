@@ -17,6 +17,10 @@ import PlacementPage from './pages/PlacementPage';
 import HackathonPage from './pages/Hackathon';
 import EventsPage from './pages/EventsPage'; // Import the new EventsPage
 import DummyPage from './pages/DummyPage';
+import UserProfile from './pages/UserProfile';
+import AnnouncementList from './pages/AnnouncementList';
+import AnnouncementForm from './pages/AnnouncementForm';
+import AnnouncementDetail from './pages/AnnouncementDetail';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -49,12 +53,16 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/admin" element={<ProtectedRoute element={<AdminPanel />} admin />} />
           <Route path="/hackathons" element={<ProtectedRoute element={<HackathonPage />} admin />} />
-          <Route path="/category/:id" element={<CategoryPage />} />
+          <Route path="/:slug" element={<CategoryPage/>} />
           <Route path='/placement' element={<PlacementPage/>}/>
           <Route path="/user" element={<ViewUsers/>}/>
           <Route path="/events" element={<EventsPage />} /> // Add this new route for the EventsPage
           <Route path="/dummy" element={<DummyPage/>}/>
+          <Route path='/announcementlist' element={<ProtectedRoute element={<AnnouncementList/>}admin/>}/>
+          <Route path='/createAnnouncement' element={<ProtectedRoute element={<AnnouncementForm/>} admin/>}/>
+          <Route path='/announcement/:id' element={<AnnouncementDetail/>}/>
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/profile" element={<UserProfile/>}/>
         </Routes>
       </div>
     </Router>
